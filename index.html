@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FuzzyXAI - Explainable Fuzzy Multi-Criteria Decision Support System</title>
+  <!-- Tailwind CSS is NOT used, standard style.css covers custom theme -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside>
+      <div class="brand-section">
+        <div class="brand-logo">F</div>
+        <div class="brand-title">FuzzyXAI DSS</div>
+      </div>
+      
+      <nav class="navigation-menu">
+        <a class="nav-item active" id="nav-screener" onclick="switchTab('screener')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          Resume Screener
+        </a>
+        <a class="nav-item" id="nav-performance" onclick="switchTab('performance')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
+          Performance Analytics
+        </a>
+        <a class="nav-item" id="nav-nexus" onclick="switchTab('nexus')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+          Decision Nexus (Links)
+        </a>
+      </nav>
+      
+      <button class="theme-toggle-btn" onclick="toggleTheme()">
+        <svg id="theme-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"></path></svg>
+        <span id="theme-text">Light Mode</span>
+      </button>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main>
+      
+      <!-- HEADER -->
+      <header>
+        <div class="header-meta">
+          <h1 id="view-title">Resume Screening & Fit Evaluation</h1>
+          <p id="view-desc">Fuzzy Multi-Criteria Decision Support Engine aligned with Top Performer profiles.</p>
+        </div>
+      </header>
+
+      <!-- VIEW 1: RESUME SCREENER -->
+      <div id="tab-screener" class="tab-content active">
+        <div class="dashboard-grid">
+          
+          <!-- LEFT COLUMN: INPUTS & SETTINGS -->
+          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <!-- Job Description Config Card -->
+            <div class="glass-card">
+              <h3 class="card-title">1. Select Target Job Role</h3>
+              <div class="select-wrapper">
+                <label for="jd-select">Job Role Profile</label>
+                <select id="jd-select" onchange="onJDChanged()">
+                  <!-- Dynamically populated from JS -->
+                </select>
+              </div>
+              <div id="jd-skills-container" style="margin-top: 0.5rem;">
+                <label>Core Required Skills</label>
+                <div id="jd-skills-badges" class="badge-list"></div>
+              </div>
+            </div>
+
+            <!-- Candidates Directory Card -->
+            <div class="glass-card">
+              <h3 class="card-title">2. Choose Candidate Resume</h3>
+              <div id="candidates-list">
+                <!-- Dynamically populated from JS -->
+              </div>
+              
+              <!-- Resume Sandbox Area -->
+              <div style="margin-top: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <label>Drag & Drop Resume (.txt) or Paste Text</label>
+                <div class="resume-uploader" id="resume-drop-zone" onclick="document.getElementById('file-uploader').click()">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin: 0 auto 0.5rem auto; color: var(--accent-indigo); display: block;">
+                    <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                  <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Click to upload or drag resume file here</span>
+                  <input type="file" id="file-uploader" accept=".txt" style="display: none;">
+                </div>
+                
+                <textarea id="resume-text-input" rows="4" placeholder="Or paste full resume text here to parse and trigger fuzzy calculations on-the-fly..." oninput="onCustomResumeInput()"></textarea>
+              </div>
+            </div>
+
+            <!-- Counterfactual Sandbox Sliders -->
+            <div class="glass-card">
+              <h3 class="card-title">
+                3. What-If Counterfactual Sandbox
+                <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-secondary); margin-left: auto;">Adjust inputs to explore rules</span>
+              </h3>
+              <div class="slider-group">
+                
+                <div class="slider-container">
+                  <div class="slider-header">
+                    <span class="slider-name">Technical Skill Overlap Match</span>
+                    <span class="slider-value" id="val-skills">80%</span>
+                  </div>
+                  <input type="range" id="slide-skills" min="0" max="100" value="80" oninput="onSliderAdjusted('skills')">
+                  <div class="badge-list" id="candidate-skills-badges"></div>
+                </div>
+
+                <div class="slider-container">
+                  <div class="slider-header">
+                    <span class="slider-name">Relevant Work Experience</span>
+                    <span class="slider-value" id="val-experience">5 Years</span>
+                  </div>
+                  <input type="range" id="slide-experience" min="0" max="15" value="5" oninput="onSliderAdjusted('experience')">
+                </div>
+
+                <div class="slider-container">
+                  <div class="slider-header">
+                    <span class="slider-name">Historical Top-Performer Alignment</span>
+                    <span class="slider-value" id="val-alignment">75%</span>
+                  </div>
+                  <input type="range" id="slide-alignment" min="0" max="100" value="75" oninput="onSliderAdjusted('alignment')">
+                </div>
+
+                <div class="slider-container">
+                  <div class="slider-header">
+                    <span class="slider-name">Soft Skills & Cultural Alignment</span>
+                    <span class="slider-value" id="val-culture">80%</span>
+                  </div>
+                  <input type="range" id="slide-culture" min="0" max="100" value="80" oninput="onSliderAdjusted('culture')">
+                </div>
+
+                <div class="slider-container">
+                  <div class="slider-header">
+                    <span class="slider-name">Education/Credentials Match</span>
+                    <span class="slider-value" id="val-education">Adequate</span>
+                  </div>
+                  <input type="range" id="slide-education" min="0" max="100" value="60" oninput="onSliderAdjusted('education')">
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN: EXPLAINABLE AI OUTPUT & METRICS -->
+          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <!-- Result Summary Card -->
+            <div class="glass-card" style="position: relative; overflow: hidden; background: linear-gradient(135deg, var(--card-bg), rgba(99,102,241,0.05));">
+              <h3 class="card-title">Decision Output</h3>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+                <div>
+                  <h2 id="final-decision-badge" class="score-badge high" style="font-size: 1.25rem; padding: 0.5rem 1.25rem;">Exceptional Fit</h2>
+                  <p id="decision-desc" style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;"></p>
+                </div>
+                <div style="text-align: right;">
+                  <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600;">Overall Match Score</span>
+                  <div id="final-score-val" style="font-size: 3rem; font-weight: 800; color: var(--text-primary); line-height: 1;">82.8%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Decision Weights Editor -->
+            <div class="glass-card">
+              <h3 class="card-title">Decision Criteria Importance Weights</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary);">Recalculate candidates matches by weighting technical vs cultural constraints.</p>
+              <div class="weight-grid">
+                <div class="weight-item">
+                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Skills Match</span>
+                  <input type="range" id="weight-skills" min="0.1" max="1" step="0.1" value="1.0" oninput="onWeightsChanged()">
+                </div>
+                <div class="weight-item">
+                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Experience</span>
+                  <input type="range" id="weight-experience" min="0.1" max="1" step="0.1" value="0.9" oninput="onWeightsChanged()">
+                </div>
+                <div class="weight-item">
+                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Benchmark</span>
+                  <input type="range" id="weight-alignment" min="0.1" max="1" step="0.1" value="0.8" oninput="onWeightsChanged()">
+                </div>
+                <div class="weight-item">
+                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Cultural Fit</span>
+                  <input type="range" id="weight-culture" min="0.1" max="1" step="0.1" value="0.7" oninput="onWeightsChanged()">
+                </div>
+                <div class="weight-item">
+                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Education</span>
+                  <input type="range" id="weight-education" min="0.1" max="1" step="0.1" value="0.5" oninput="onWeightsChanged()">
+                </div>
+              </div>
+            </div>
+
+            <!-- XAI SHAP Plot -->
+            <div class="glass-card">
+              <h3 class="card-title">Local Explanations: Criteria Influence (SHAP Plot)</h3>
+              <div id="shap-plot-screener"></div>
+            </div>
+
+            <!-- Fuzzy Defuzzification Shape -->
+            <div class="glass-card">
+              <h3 class="card-title">Mamdani Aggregation & Centroid Defuzzification</h3>
+              <div id="centroid-plot-screener"></div>
+            </div>
+
+            <!-- Dynamic Rule Base Inspector -->
+            <div class="glass-card full-width">
+              <h3 class="card-title">Triggered Mamdani Rules Inspector</h3>
+              <div id="rules-list-screener" style="max-height: 250px; overflow-y: auto; padding-right: 0.5rem;"></div>
+            </div>
+
+            <!-- Active Variable Memberships -->
+            <div class="glass-card full-width">
+              <h3 class="card-title">Membership Functions Activations</h3>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                <div class="glass-card bg-slate-900/10">
+                  <h4 class="card-title" style="font-size: 0.9rem; border: none; margin-bottom: 0;">Skills Match MF</h4>
+                  <div id="mf-skills"></div>
+                </div>
+                <div class="glass-card bg-slate-900/10">
+                  <h4 class="card-title" style="font-size: 0.9rem; border: none; margin-bottom: 0;">Experience MF</h4>
+                  <div id="mf-experience"></div>
+                </div>
+                <div class="glass-card bg-slate-900/10">
+                  <h4 class="card-title" style="font-size: 0.9rem; border: none; margin-bottom: 0;">Alignment MF</h4>
+                  <div id="mf-alignment"></div>
+                </div>
+                <div class="glass-card bg-slate-900/10">
+                  <h4 class="card-title" style="font-size: 0.9rem; border: none; margin-bottom: 0;">Cultural Fit MF</h4>
+                  <div id="mf-culture"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 2: PERFORMANCE ANALYTICS -->
+      <div id="tab-performance" class="tab-content">
+        <div class="dashboard-grid">
+          
+          <!-- LEFT COLUMN: EMPLOYEES & SCORES -->
+          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <div class="glass-card">
+              <h3 class="card-title">1. Employee Directory</h3>
+              <div id="employees-list">
+                <!-- Dynamically populated from JS -->
+              </div>
+            </div>
+
+            <div class="glass-card">
+              <h3 class="card-title">2. Modify Performance Metrics</h3>
+              <div class="slider-group">
+                
+                <div class="slider-container">
+                  <div class="slider-header">
+                    <span class="slider-name">Productivity & Throughput</span>
+                    <span class="slider-value" id="val-perf-prod">80%</span>
+                  </div>
+                  <input type="range" id="slide-perf-prod" min="0" max="100" value="80" oninput="onPerfSliderAdjusted('prod')">
+                </div>
+
+                <div class="slider-container">
+                  <div class="slider-header">
+                    <span class="slider-name">Quality of Work & Accuracy</span>
+                    <span class="slider-value" id="val-perf-qual">80%</span>
+                  </div>
+                  <input type="range" id="slide-perf-qual" min="0" max="100" value="80" oninput="onPerfSliderAdjusted('qual')">
+                </div>
+
+                <div class="slider-container">
+                  <div class="slider-header">
+                    <span class="slider-name">Collaboration & Teamwork</span>
+                    <span class="slider-value" id="val-perf-coll">80%</span>
+                  </div>
+                  <input type="range" id="slide-perf-coll" min="0" max="100" value="80" oninput="onPerfSliderAdjusted('coll')">
+                </div>
+
+                <div class="slider-container">
+                  <div class="slider-header">
+                    <span class="slider-name">Adaptability & Upskilling</span>
+                    <span class="slider-value" id="val-perf-adap">80%</span>
+                  </div>
+                  <input type="range" id="slide-perf-adap" min="0" max="100" value="80" oninput="onPerfSliderAdjusted('adap')">
+                </div>
+
+                <div class="slider-container">
+                  <div class="slider-header">
+                    <span class="slider-name">Autonomy & Leadership</span>
+                    <span class="slider-value" id="val-perf-auto">80%</span>
+                  </div>
+                  <input type="range" id="slide-perf-auto" min="0" max="100" value="80" oninput="onPerfSliderAdjusted('auto')">
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Dynamic Performance Weights Editor -->
+            <div class="glass-card">
+              <h3 class="card-title">Performance Criteria Weightings</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Configure the weight of individual indicators in talent mapping.</p>
+              <div class="weight-grid">
+                <div class="weight-item">
+                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Productivity</span>
+                  <input type="range" id="weight-perf-prod" min="0.1" max="1" step="0.1" value="1.0" oninput="onPerfWeightsChanged()">
+                </div>
+                <div class="weight-item">
+                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Quality</span>
+                  <input type="range" id="weight-perf-qual" min="0.1" max="1" step="0.1" value="1.0" oninput="onPerfWeightsChanged()">
+                </div>
+                <div class="weight-item">
+                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Collaboration</span>
+                  <input type="range" id="weight-perf-coll" min="0.1" max="1" step="0.1" value="0.8" oninput="onPerfWeightsChanged()">
+                </div>
+                <div class="weight-item">
+                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Adaptability</span>
+                  <input type="range" id="weight-perf-adap" min="0.1" max="1" step="0.1" value="0.7" oninput="onPerfWeightsChanged()">
+                </div>
+                <div class="weight-item">
+                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Autonomy</span>
+                  <input type="range" id="weight-perf-auto" min="0.1" max="1" step="0.1" value="0.6" oninput="onPerfWeightsChanged()">
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN: PERFORMANCE XAI -->
+          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <div class="glass-card" style="position: relative; overflow: hidden; background: linear-gradient(135deg, var(--card-bg), rgba(16,185,129,0.05));">
+              <h3 class="card-title">Performance Summary</h3>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+                <div>
+                  <h2 id="perf-decision-badge" class="score-badge high" style="font-size: 1.25rem; padding: 0.5rem 1.25rem;">Star Performer</h2>
+                  <p id="perf-decision-desc" style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Promote & Reward</p>
+                </div>
+                <div style="text-align: right;">
+                  <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600;">Overall Rating</span>
+                  <div id="perf-score-val" style="font-size: 3rem; font-weight: 800; color: var(--text-primary); line-height: 1;">89.0%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- XAI SHAP Plot -->
+            <div class="glass-card">
+              <h3 class="card-title">Criteria Influence on Employee Score (SHAP Plot)</h3>
+              <div id="shap-plot-perf"></div>
+            </div>
+
+            <!-- Fuzzy Defuzzification Shape -->
+            <div class="glass-card">
+              <h3 class="card-title">Mamdani Aggregation & Centroid Defuzzification</h3>
+              <div id="centroid-plot-perf"></div>
+            </div>
+
+            <!-- Rule Base Inspector -->
+            <div class="glass-card full-width">
+              <h3 class="card-title">Triggered Mamdani Rules Inspector</h3>
+              <div id="rules-list-perf" style="max-height: 250px; overflow-y: auto; padding-right: 0.5rem;"></div>
+            </div>
+
+          </div>
+      <!-- VIEW 3: DECISION NEXUS (LINKS) -->
+      <div id="tab-nexus" class="tab-content">
+        <div class="dashboard-grid">
+          
+          <!-- LEFT COLUMN: INPUTS & CRITERIA -->
+          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <!-- Box A: Target Specifications -->
+            <div class="glass-card">
+              <h3 class="card-title">Box A: Target Requirements</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="select-wrapper">
+                  <label for="nexus-target-cuisine">Preferred Cuisine</label>
+                  <select id="nexus-target-cuisine" onchange="onNexusTargetChanged()">
+                    <option value="Italian">Italian</option>
+                    <option value="Sushi">Sushi</option>
+                    <option value="Indian">Indian</option>
+                  </select>
+                </div>
+                <div class="slider-container" style="margin-bottom: 1rem;">
+                  <div class="slider-header">
+                    <span class="slider-name">Max Target Distance</span>
+                    <span class="slider-value" id="val-nexus-target-dist">3.0 km</span>
+                  </div>
+                  <input type="range" id="slide-nexus-target-dist" min="1" max="10" step="0.5" value="3" oninput="onNexusTargetSliderChanged()">
+                </div>
+              </div>
+            </div>
+
+            <!-- Box B: Custom Link Entries & Preloaded Directories -->
+            <div class="glass-card">
+              <h3 class="card-title">Box B: Resource Link Directories</h3>
+              <div id="restaurants-list" style="margin-bottom: 1rem;">
+                <!-- Dynamically populated -->
+              </div>
+
+              <!-- Add Custom Link Form -->
+              <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <label>Add Custom Resource Link</label>
+                <input type="text" id="nexus-new-name" placeholder="Resource Name (e.g. My Favorite Pizza)">
+                <input type="text" id="nexus-new-url" placeholder="Resource URL Link (e.g. https://mypizza.com)">
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                  <div>
+                    <label for="nexus-new-cuisine">Cuisine Type</label>
+                    <select id="nexus-new-cuisine">
+                      <option value="Italian">Italian</option>
+                      <option value="Sushi">Sushi</option>
+                      <option value="Indian">Indian</option>
+                    </select>
+                  </div>
+                  <div class="slider-container">
+                    <div class="slider-header" style="font-size: 0.8rem;">
+                      <span class="slider-name">Actual Distance</span>
+                      <span class="slider-value" id="val-nexus-new-dist">2.0 km</span>
+                    </div>
+                    <input type="range" id="slide-nexus-new-dist" min="0.5" max="10" step="0.5" value="2" oninput="document.getElementById('val-nexus-new-dist').textContent = parseFloat(this.value).toFixed(1) + ' km'">
+                  </div>
+                </div>
+                
+                <button class="theme-toggle-btn" style="margin-top: 0.5rem; background: var(--accent-indigo); color: white; border-color: var(--accent-indigo);" onclick="addNewNexusLink()">
+                  Add to Resource Board
+                </button>
+              </div>
+            </div>
+
+            <!-- Box C: Importance, Urgency, Necessity Matrix -->
+            <div class="glass-card">
+              <h3 class="card-title">Box C: Priority Scoring Matrix (Likert Scale)</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Evaluate the Priority Rating (1-5 scale) for each criteria factor.</p>
+              
+              <div class="likert-grid">
+                
+                <!-- Distance Row -->
+                <div class="likert-row">
+                  <div class="likert-factor-name">Distance</div>
+                  
+                  <div class="likert-cell">
+                    <span>Importance</span>
+                    <div class="likert-pills" id="likert-dist-imp" data-value="3">
+                      <div class="likert-pill" onclick="setLikert('dist', 'imp', 1)">1</div>
+                      <div class="likert-pill" onclick="setLikert('dist', 'imp', 2)">2</div>
+                      <div class="likert-pill active" onclick="setLikert('dist', 'imp', 3)">3</div>
+                      <div class="likert-pill" onclick="setLikert('dist', 'imp', 4)">4</div>
+                      <div class="likert-pill" onclick="setLikert('dist', 'imp', 5)">5</div>
+                    </div>
+                  </div>
+
+                  <div class="likert-cell">
+                    <span>Urgency</span>
+                    <div class="likert-pills" id="likert-dist-urg" data-value="2">
+                      <div class="likert-pill" onclick="setLikert('dist', 'urg', 1)">1</div>
+                      <div class="likert-pill active" onclick="setLikert('dist', 'urg', 2)">2</div>
+                      <div class="likert-pill" onclick="setLikert('dist', 'urg', 3)">3</div>
+                      <div class="likert-pill" onclick="setLikert('dist', 'urg', 4)">4</div>
+                      <div class="likert-pill" onclick="setLikert('dist', 'urg', 5)">5</div>
+                    </div>
+                  </div>
+
+                  <div class="likert-cell">
+                    <span>Necessity</span>
+                    <div class="likert-pills" id="likert-dist-nec" data-value="4">
+                      <div class="likert-pill" onclick="setLikert('dist', 'nec', 1)">1</div>
+                      <div class="likert-pill" onclick="setLikert('dist', 'nec', 2)">2</div>
+                      <div class="likert-pill" onclick="setLikert('dist', 'nec', 3)">3</div>
+                      <div class="likert-pill active" onclick="setLikert('dist', 'nec', 4)">4</div>
+                      <div class="likert-pill" onclick="setLikert('dist', 'nec', 5)">5</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Cuisine Row -->
+                <div class="likert-row">
+                  <div class="likert-factor-name">Cuisine</div>
+                  
+                  <div class="likert-cell">
+                    <span>Importance</span>
+                    <div class="likert-pills" id="likert-cui-imp" data-value="4">
+                      <div class="likert-pill" onclick="setLikert('cui', 'imp', 1)">1</div>
+                      <div class="likert-pill" onclick="setLikert('cui', 'imp', 2)">2</div>
+                      <div class="likert-pill" onclick="setLikert('cui', 'imp', 3)">3</div>
+                      <div class="likert-pill active" onclick="setLikert('cui', 'imp', 4)">4</div>
+                      <div class="likert-pill" onclick="setLikert('cui', 'imp', 5)">5</div>
+                    </div>
+                  </div>
+
+                  <div class="likert-cell">
+                    <span>Urgency</span>
+                    <div class="likert-pills" id="likert-cui-urg" data-value="1">
+                      <div class="likert-pill active" onclick="setLikert('cui', 'urg', 1)">1</div>
+                      <div class="likert-pill" onclick="setLikert('cui', 'urg', 2)">2</div>
+                      <div class="likert-pill" onclick="setLikert('cui', 'urg', 3)">3</div>
+                      <div class="likert-pill" onclick="setLikert('cui', 'urg', 4)">4</div>
+                      <div class="likert-pill" onclick="setLikert('cui', 'urg', 5)">5</div>
+                    </div>
+                  </div>
+
+                  <div class="likert-cell">
+                    <span>Necessity</span>
+                    <div class="likert-pills" id="likert-cui-nec" data-value="3">
+                      <div class="likert-pill" onclick="setLikert('cui', 'nec', 1)">1</div>
+                      <div class="likert-pill" onclick="setLikert('cui', 'nec', 2)">2</div>
+                      <div class="likert-pill active" onclick="setLikert('cui', 'nec', 3)">3</div>
+                      <div class="likert-pill" onclick="setLikert('cui', 'nec', 4)">4</div>
+                      <div class="likert-pill" onclick="setLikert('cui', 'nec', 5)">5</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Reviews Row -->
+                <div class="likert-row">
+                  <div class="likert-factor-name">Reviews</div>
+                  
+                  <div class="likert-cell">
+                    <span>Importance</span>
+                    <div class="likert-pills" id="likert-rev-imp" data-value="5">
+                      <div class="likert-pill" onclick="setLikert('rev', 'imp', 1)">1</div>
+                      <div class="likert-pill" onclick="setLikert('rev', 'imp', 2)">2</div>
+                      <div class="likert-pill" onclick="setLikert('rev', 'imp', 3)">3</div>
+                      <div class="likert-pill" onclick="setLikert('rev', 'imp', 4)">4</div>
+                      <div class="likert-pill active" onclick="setLikert('rev', 'imp', 5)">5</div>
+                    </div>
+                  </div>
+
+                  <div class="likert-cell">
+                    <span>Urgency</span>
+                    <div class="likert-pills" id="likert-rev-urg" data-value="3">
+                      <div class="likert-pill" onclick="setLikert('rev', 'urg', 1)">1</div>
+                      <div class="likert-pill" onclick="setLikert('rev', 'urg', 2)">2</div>
+                      <div class="likert-pill active" onclick="setLikert('rev', 'urg', 3)">3</div>
+                      <div class="likert-pill" onclick="setLikert('rev', 'urg', 4)">4</div>
+                      <div class="likert-pill" onclick="setLikert('rev', 'urg', 5)">5</div>
+                    </div>
+                  </div>
+
+                  <div class="likert-cell">
+                    <span>Necessity</span>
+                    <div class="likert-pills" id="likert-rev-nec" data-value="4">
+                      <div class="likert-pill" onclick="setLikert('rev', 'nec', 1)">1</div>
+                      <div class="likert-pill" onclick="setLikert('rev', 'nec', 2)">2</div>
+                      <div class="likert-pill" onclick="setLikert('rev', 'nec', 3)">3</div>
+                      <div class="likert-pill active" onclick="setLikert('rev', 'nec', 4)">4</div>
+                      <div class="likert-pill" onclick="setLikert('rev', 'nec', 5)">5</div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN: DECISION ANALYSIS & Sentiment Highlights -->
+          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <!-- Result Card -->
+            <div class="glass-card" style="position: relative; overflow: hidden; background: linear-gradient(135deg, var(--card-bg), rgba(139,92,246,0.05));">
+              <h3 class="card-title">Resource Compatibility Decision</h3>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+                <div>
+                  <h2 id="nexus-decision-badge" class="score-badge high" style="font-size: 1.25rem; padding: 0.5rem 1.25rem;">Highly Compatible</h2>
+                  <p id="nexus-decision-desc" style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Matches target criteria exceptional.</p>
+                </div>
+                <div style="text-align: right;">
+                  <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600;">Match Score</span>
+                  <div id="nexus-score-val" style="font-size: 3rem; font-weight: 800; color: var(--text-primary); line-height: 1;">88.5%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Review Scraping sentiment highlighter card -->
+            <div class="glass-card">
+              <h3 class="card-title">Scraped Review NLP Sentiment Highlighter</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Live review content text parsed client-side for positive/negative triggers.</p>
+              
+              <div style="margin-bottom: 0.75rem;">
+                <label for="nexus-reviews-text">Source Review Text</label>
+                <textarea id="nexus-reviews-text" rows="4" placeholder="Reviews content loaded here..." oninput="onCustomReviewsInput()"></textarea>
+              </div>
+              
+              <div class="glass-card bg-slate-950/30 border-slate-900" style="padding: 1rem;">
+                <label style="font-size: 0.75rem;">Parsed Highlight View</label>
+                <div id="nexus-sentiment-markup" style="font-size: 0.9rem; line-height: 1.6; color: var(--text-primary); min-height: 50px;">
+                  <!-- Dynamically populated with spans -->
+                </div>
+              </div>
+            </div>
+
+            <!-- XAI SHAP plot -->
+            <div class="glass-card">
+              <h3 class="card-title">Local Explanations: Criteria Influence (SHAP Plot)</h3>
+              <div id="shap-plot-nexus"></div>
+            </div>
+
+            <!-- Fuzzy Defuzzification Shape -->
+            <div class="glass-card">
+              <h3 class="card-title">Mamdani Aggregation & Centroid Defuzzification</h3>
+              <div id="centroid-plot-nexus"></div>
+            </div>
+
+            <!-- Rules Inspector -->
+            <div class="glass-card full-width">
+              <h3 class="card-title">Triggered Mamdani Rules Inspector</h3>
+              <div id="rules-list-nexus" style="max-height: 250px; overflow-y: auto; padding-right: 0.5rem;"></div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Loading scripts -->
+  <script src="fuzzyEngine.js"></script>
+  <script src="data.js"></script>
+  <script src="xaiVisualizer.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

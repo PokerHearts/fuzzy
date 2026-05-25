@@ -1,0 +1,24 @@
+{
+  "name": "fuzzy-xai-dss",
+  "version": "1.0.0",
+  "description": "An Explainable AI (XAI) and Fuzzy Multi-Criteria Decision Support System for Performance Analytics and Resume Screening",
+  "main": "app.js",
+  "scripts": {
+    "start": "npx http-server -p 8080",
+    "dev": "npx http-server -p 8080"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "keywords": [
+    "fuzzy-logic",
+    "decision-support",
+    "explainable-ai",
+    "xai",
+    "performance-analytics",
+    "resume-screening"
+  ],
+  "author": "Antigravity",
+  "license": "ISC"
+}
