@@ -1,7 +1,8 @@
 /**
- * Preloaded Data Mocks & Skill Overlap/Cosine Similarity Engine
+ * Preloaded Data Models & Natural Language Summary Engine
  * Provides realistic HR datasets for resume screening and performance evaluations.
  * Implements client-side semantic matching between JDs, candidates, and previous employee benchmarks.
+ * Contains URL crawlers heuristics and plain-English decision summarizers.
  */
 
 const JOB_DESCRIPTIONS = {
@@ -10,7 +11,7 @@ const JOB_DESCRIPTIONS = {
     title: "Senior Frontend Architect",
     skills: ["javascript", "css", "html", "react", "performance", "architecture", "ux", "accessibility", "typescript", "testing", "webpack", "vite", "web components"],
     minExp: 8,
-    prefEducation: "bachelor", // bachelor, master, phd
+    prefEducation: "bachelor",
     culturalProfile: { collaboration: 90, adaptability: 85, leadership: 80 }
   },
   data_scientist: {
@@ -107,7 +108,7 @@ const PREVIOUS_EMPLOYEES = {
   ]
 };
 
-// Sample candidates with detailed simulated resumes for screening
+// Simulated candidate directories (8 diverse mock candidates for bulk screening)
 const CANDIDATES = [
   {
     id: "candidate_1",
@@ -167,7 +168,7 @@ Software Engineer (Frontend) | WebCrafters (2021 - Present)
 - Improved SEO scores by restructure semantic HTML and optimizing image loading.
 
 Junior Frontend Web Developer | DevStart Agency (2020 - 2021)
-- Built interactive features using JavaScript, HTML, CSS, and jQuery.
+- Wrote basic code using JavaScript, HTML, CSS, and jQuery.
 - Fixed layout and visual bugs across different browsers.
 - Wrote unit tests and assisted in migrating legacy projects to React.
 
@@ -205,6 +206,148 @@ Bachelor of Arts in Graphic Design | Academy of Art (2023)
 
 TECHNICAL SKILLS:
 Skills: HTML, CSS, WordPress, Figma, Photoshop, Illustrator, Basic JavaScript, Bootstrap
+    `
+  },
+  {
+    id: "candidate_4",
+    name: "Emily Davis",
+    targetRole: "data_scientist",
+    experience: 7,
+    education: "master",
+    collaboration: 80,
+    adaptability: 92,
+    leadership: 70,
+    resumeText: `
+EMILY DAVIS - SENIOR DATA SCIENTIST & ML ENGINEER
+Email: emily.davis@example.com
+
+SUMMARY:
+7+ years of experience analyzing massive datasets and deploying machine learning models. Expert in python, machine learning, pytorch, tensorflow, pandas, and statistical modeling.
+
+EXPERIENCE:
+Senior Data Scientist | DeepMind Labs (2021 - Present)
+- Developed and deployed deep learning transformers models using PyTorch.
+- Analyzed tabular data, built explainable ai metrics, and set up spark data pipelines.
+- Directed a small team to build data engineering schemas in SQL.
+
+EDUCATION:
+Master of Science in Statistics | Stanford University (2019)
+
+TECHNICAL SKILLS:
+Skills: Python, Machine Learning, PyTorch, TensorFlow, Statistics, SQL, Pandas, Explainable AI, Spark
+    `
+  },
+  {
+    id: "candidate_5",
+    name: "John Carter",
+    targetRole: "product_manager",
+    experience: 9,
+    education: "bachelor",
+    collaboration: 95,
+    adaptability: 82,
+    leadership: 88,
+    resumeText: `
+JOHN CARTER - TECHNICAL PRODUCT MANAGER
+Email: carter.j@example.com
+
+SUMMARY:
+Results-driven Product Manager with 9 years of experience guiding agile software development cycles, setting roadmap strategies, and leading user research metrics.
+
+EXPERIENCE:
+Senior Product Manager | CloudNexus (2020 - Present)
+- Managed core product agile lifecycle from wireframing to launch.
+- Designed product roadmap, coordinated user research, and wrote strategy specs.
+- Drafted Jira boards, ran daily scrum, and analyzed SQL data metrics.
+
+EDUCATION:
+Bachelor of Science in Business Admin | NYU (2017)
+
+TECHNICAL SKILLS:
+Skills: Agile, Scrum, Roadmap, User Research, Analytics, SQL, Strategy, Jira, Communication, Product Lifecycle
+    `
+  },
+  {
+    id: "candidate_6",
+    name: "Alice Wonderland",
+    targetRole: "frontend_architect",
+    experience: 3,
+    education: "bachelor",
+    collaboration: 85,
+    adaptability: 80,
+    leadership: 50,
+    resumeText: `
+ALICE WONDERLAND - JUNIOR FRONTEND ENGINEER
+Email: alice@wonderland.dev
+
+SUMMARY:
+Passionate React developer with 3 years experience. Skilled in modern CSS, HTML5, React hooks, and Basic JavaScript. Eager to grow as a Frontend Architect.
+
+EXPERIENCE:
+Junior Web Developer | TechStart (2023 - Present)
+- Built modular React components.
+- Maintained web designs using custom CSS and HTML.
+- Utilized Git for version control.
+
+EDUCATION:
+Bachelor of Science in Software Engineering | UT Austin (2023)
+
+TECHNICAL SKILLS:
+Skills: React, JavaScript, HTML, CSS, Git, Webpack, Responsive Design
+    `
+  },
+  {
+    id: "candidate_7",
+    name: "Bob Builder",
+    targetRole: "frontend_architect",
+    experience: 11,
+    education: "bachelor",
+    collaboration: 65,
+    adaptability: 70,
+    leadership: 60,
+    resumeText: `
+BOB BUILDER - DEVOPS ENGINEER & SYSTEMS ARCHITECT
+Email: bob.b@sysops.com
+
+SUMMARY:
+11+ years of managing cloud infrastructure, Linux servers, CI/CD pipelines, Docker, Kubernetes, and AWS systems. Minimal experience with frontend layouts.
+
+EXPERIENCE:
+Lead DevOps Architect | SysOps Solutions (2018 - Present)
+- Managed AWS kubernetes clusters, Docker containers, and CI/CD pipelines.
+- Wrote automation scripts in Python and Bash.
+- Monitored network security and load balancing.
+
+TECHNICAL SKILLS:
+Skills: Python, Linux, AWS, Kubernetes, Docker, CI/CD, Git, Scripting, SQL
+    `
+  },
+  {
+    id: "candidate_8",
+    name: "Charlie Brown",
+    targetRole: "product_manager",
+    experience: 4,
+    education: "bachelor",
+    collaboration: 90,
+    adaptability: 75,
+    leadership: 70,
+    resumeText: `
+CHARLIE BROWN - PRODUCT OWNER / MANAGER
+Email: charlie@brown-consulting.com
+
+SUMMARY:
+Product Owner with 4 years experience leading software sprints, drafting user stories, and managing roadmaps.
+
+EXPERIENCE:
+Product Owner | SprintConsult (2022 - Present)
+- Collaborated in an agile scrum team to write user research briefs.
+- Created Jira tickets and managed product backlog roadmaps.
+- Coordinated strategy briefs and communications with clients.
+
+EDUCATION:
+Bachelor of Arts in Communications | UCLA (2021)
+
+TECHNICAL SKILLS:
+Skills: Agile, Scrum, Jira, Roadmap, User Research, Communication, Product Lifecycle
     `
   }
 ];
@@ -268,111 +411,13 @@ const EXISTING_EMPLOYEES = [
   }
 ];
 
-// --- Skill Parsing & Cosine Similarity Engines ---
-
-/**
- * Parses resume text to find overlapping skills listed in the Job Description.
- * Returns overlapping list, matched percentage, and missing skills.
- */
-function parseResumeSkills(resumeText, jdSkills) {
-  if (!resumeText) return { matched: [], percent: 0, missing: jdSkills };
-  
-  const textNormalized = resumeText.toLowerCase();
-  const matched = [];
-  const missing = [];
-  
-  jdSkills.forEach(skill => {
-    // Escape special characters in skill name for regex matching (e.g. C++, .net)
-    const escaped = skill.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-    // Look for word boundaries or isolated occurrences
-    const regex = new RegExp(`(?:\\b|\\s|/)${escaped}(?:\\b|\\s|/|,)`, 'i');
-    
-    if (regex.test(textNormalized)) {
-      matched.push(skill);
-    } else {
-      missing.push(skill);
-    }
-  });
-
-  const percent = Math.round((matched.length / jdSkills.length) * 100);
-  return { matched, percent, missing };
-}
-
-/**
- * Calculates Cosine Similarity between a candidate's skill set and
- * the aggregated skill profile of top-performing previous employees.
- * Vector representation: binary vector of matches across all union skills.
- */
-function calculateHistoricalAlignment(candidateSkills, roleId) {
-  const benchmarks = PREVIOUS_EMPLOYEES[roleId];
-  if (!benchmarks || benchmarks.length === 0) return 50; // Default baseline if no reference
-
-  // 1. Gather all unique skills from previous top employees in this role
-  const benchmarkSkillsUnionSet = new Set();
-  benchmarks.forEach(emp => {
-    emp.skills.forEach(s => benchmarkSkillsUnionSet.add(s));
-  });
-  const unionSkills = Array.from(benchmarkSkillsUnionSet);
-  if (unionSkills.length === 0) return 50;
-
-  // 2. Build Average Benchmark Vector
-  const benchmarkVec = unionSkills.map(skill => {
-    let count = 0;
-    benchmarks.forEach(emp => {
-      if (emp.skills.includes(skill)) count++;
-    });
-    return count / benchmarks.length; // Average presence of this skill (0 to 1)
-  });
-
-  // 3. Build Candidate Vector
-  const candidateVec = unionSkills.map(skill => {
-    return candidateSkills.includes(skill) ? 1 : 0;
-  });
-
-  // 4. Calculate Cosine Similarity
-  let dotProduct = 0;
-  let normA = 0;
-  let normB = 0;
-
-  for (let i = 0; i < unionSkills.length; i++) {
-    dotProduct += candidateVec[i] * benchmarkVec[i];
-    normA += candidateVec[i] * candidateVec[i];
-    normB += benchmarkVec[i] * benchmarkVec[i];
-  }
-
-  if (normA === 0 || normB === 0) return 30; // low baseline alignment
-
-  const similarity = dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
-  
-  // Return scale normalized to [0, 100]
-  return Math.round(similarity * 100);
-}
-
-/**
- * Evaluates the candidate's Education Match score.
- * Minimum target mapping: bachelor -> 50, master -> 80, phd -> 100
- */
-function getEducationMatchScore(candEdu, reqEdu) {
-  const eduRank = { none: 0, high_school: 20, associate: 40, bachelor: 60, master: 85, phd: 100 };
-  const candRank = eduRank[candEdu.toLowerCase()] || 40;
-  const reqRank = eduRank[reqEdu.toLowerCase()] || 60;
-  
-  if (candRank >= reqRank) {
-    // Exceeds or meets
-    return 90 + Math.min(10, (candRank - reqRank));
-  } else {
-    // Penalty for not meeting
-    return Math.max(30, 90 - (reqRank - candRank) * 1.5);
-  }
-}
-
 const RESTAURANTS = [
   {
     id: "restaurant_1",
     name: "Toscano Italian Bistro",
     url: "https://toscano-bistro.example.com",
     cuisine: "Italian",
-    distance: 1.8, // km
+    distance: 1.8,
     price: 3,
     reviews: "Toscano is absolutely spectacular! The handmade fettuccine and truffle pasta were delicious. Service was incredibly fast and welcoming. The cozy outdoor seating creates a wonderful atmosphere. It is a bit expensive but totally worth it. Will definitely return for another amazing dinner!"
   },
@@ -396,6 +441,55 @@ const RESTAURANTS = [
   }
 ];
 
+// --- Mock JD URL Crawler & Sentiment Parser ---
+
+/**
+ * Heuristic crawler for LinkedIn/Naukri URLs.
+ * Automatically identifies roles based on keywords and returns target constraints.
+ */
+function parseJDFromUrl(url) {
+  if (!url) return null;
+  const urlLower = url.toLowerCase();
+  
+  if (urlLower.includes("react") || urlLower.includes("frontend") || urlLower.includes("developer") || urlLower.includes("architect")) {
+    return {
+      title: "Extracted: Senior Frontend Engineer",
+      skills: ["javascript", "css", "html", "react", "typescript", "webpack", "performance", "architecture", "ux", "accessibility"],
+      minExp: 7,
+      prefEducation: "bachelor"
+    };
+  }
+  
+  if (urlLower.includes("data") || urlLower.includes("science") || urlLower.includes("machine") || urlLower.includes("ml") || urlLower.includes("ai")) {
+    return {
+      title: "Extracted: ML Data Scientist",
+      skills: ["python", "machine learning", "pytorch", "tensorflow", "statistics", "pandas", "data engineering", "sql"],
+      minExp: 6,
+      prefEducation: "master"
+    };
+  }
+  
+  if (urlLower.includes("product") || urlLower.includes("manager") || urlLower.includes("agile") || urlLower.includes("scrum")) {
+    return {
+      title: "Extracted: Technical Product Manager",
+      skills: ["agile", "scrum", "roadmap", "user research", "analytics", "jira", "strategy", "communication"],
+      minExp: 8,
+      prefEducation: "bachelor"
+    };
+  }
+  
+  // Default fallback JD if url is general
+  return {
+    title: "Extracted: Software Engineer (General)",
+    skills: ["javascript", "python", "sql", "git", "html", "css", "agile", "communication"],
+    minExp: 5,
+    prefEducation: "bachelor"
+  };
+}
+
+/**
+ * Natural language positive/negative sentiment analyser.
+ */
 function analyzeReviewSentiment(text) {
   if (!text) return { score: 50, positives: [], negatives: [] };
   
@@ -417,14 +511,175 @@ function analyzeReviewSentiment(text) {
     }
   });
 
-  // Calculate rating: base 50, +6 for each unique positive, -6 for each unique negative
   let score = 50 + (matchedPos.length * 7) - (matchedNeg.length * 7);
   score = Math.max(0, Math.min(100, score));
 
   return { score, positives: matchedPos, negatives: matchedNeg };
 }
 
-// --- Bind to exports/window ---
+// --- Dynamic Plain-English Decision Explainer Narrative ---
+
+/**
+ * Generates an easy-to-read, comprehensive, non-technical plain English summary
+ * explaining exactly why the candidate got their compatibility rating.
+ */
+function generateDecisionSummary(name, inputs, finalScore, jdTitle) {
+  let recommendation = "";
+  let verdictColor = "";
+
+  if (finalScore >= 72) {
+    recommendation = "<strong>Exceptional Fit (HIRE)</strong>";
+    verdictColor = "emerald";
+  } else if (finalScore >= 45) {
+    recommendation = "<strong>Average Match (SCREEN CALL)</strong>";
+    verdictColor = "amber";
+  } else {
+    recommendation = "<strong>Poor Alignment (REJECT)</strong>";
+    verdictColor = "rose";
+  }
+
+  // Experience assessment text
+  let expEvaluation = "";
+  if (inputs.experience >= 8) {
+    expEvaluation = `possesses deep senior-level experience (${inputs.experience} years), which highly exceeds the standard requirements`;
+  } else if (inputs.experience >= 5) {
+    expEvaluation = `holds a solid mid-level experience baseline (${inputs.experience} years), meeting primary specifications`;
+  } else {
+    expEvaluation = `has junior-level experience (${inputs.experience} years), which represents a significant maturity gap for this position`;
+  }
+
+  // Skills overlap assessment
+  let skillsEvaluation = "";
+  if (inputs.skills >= 80) {
+    skillsEvaluation = `an outstanding <strong>${inputs.skills}% matching score</strong>, indicating mastery of the required tools and technical skills`;
+  } else if (inputs.skills >= 45) {
+    skillsEvaluation = `a moderate <strong>${inputs.skills}% matching score</strong>, showing they know the basics but have noticeable skills gaps`;
+  } else {
+    skillsEvaluation = `a critical <strong>${inputs.skills}% match score</strong>, missing the vast majority of requested technical capabilities`;
+  }
+
+  // Cosine benchmark assessment
+  let alignmentEvaluation = "";
+  if (inputs.alignment >= 75) {
+    alignmentEvaluation = `aligns extremely closely (<strong>${inputs.alignment}% similarity</strong>) with the core profiles of your top-performing successful employees in this role`;
+  } else if (inputs.alignment >= 45) {
+    alignmentEvaluation = `shows moderate alignment (<strong>${inputs.alignment}% similarity</strong>) with historical successful hires`;
+  } else {
+    alignmentEvaluation = `exhibits low baseline correlation (<strong>${inputs.alignment}% similarity</strong>) with successful staff parameters`;
+  }
+
+  // Culture fit
+  let cultureEvaluation = "";
+  if (inputs.culture >= 75) {
+    cultureEvaluation = "excellent soft skills and cultural synergy";
+  } else if (inputs.culture >= 50) {
+    cultureEvaluation = "satisfactory interpersonal teamwork baseline";
+  } else {
+    cultureEvaluation = "poor teamwork alignment or potential individualistic friction risks";
+  }
+
+  // Education rank
+  let eduLabel = "Adequate";
+  if (inputs.education >= 85) eduLabel = "Exceptional (Masters/PhD)";
+  else if (inputs.education < 50) eduLabel = "Limited";
+
+  return `
+    <strong>Recruitment Verdict:</strong> ${recommendation} with an overall Fuzzy Match of <strong>${finalScore.toFixed(1)}%</strong> for the <strong>${jdTitle}</strong> role.
+    <br><br>
+    <strong>Core Rationale:</strong>
+    <ul>
+      <li><strong>Technical Expertise:</strong> ${name} displays ${skillsEvaluation}.</li>
+      <li><strong>Work History:</strong> The candidate ${expEvaluation}.</li>
+      <li><strong>Benchmark Performance Alignment:</strong> Their experience profile ${alignmentEvaluation}.</li>
+      <li><strong>Culture & Soft Skills:</strong> Wrote evaluation demonstrates ${cultureEvaluation}.</li>
+      <li><strong>Education Credentials:</strong> Academic background is rated as <strong>${eduLabel}</strong>.</li>
+    </ul>
+    <br>
+    <strong>HR Next Step Action:</strong> ${
+      finalScore >= 72 
+        ? "Fast-track this candidate immediately to technical interview stages. Their profile represents a gold-standard benchmark match." 
+        : finalScore >= 45 
+        ? "Schedule a 30-minute HR phone screen call. Focus questions on resolving their missing skill sets and verifying their growth path." 
+        : "Send standard rejection correspondence. Their profile exhibits significant alignment gaps across primary structural criteria."
+    }
+  `;
+}
+
+// --- Text Overlap Parser Helper ---
+function parseResumeSkills(resumeText, jdSkills) {
+  if (!resumeText) return { matched: [], percent: 0, missing: jdSkills };
+  
+  const textNormalized = resumeText.toLowerCase();
+  const matched = [];
+  const missing = [];
+  
+  jdSkills.forEach(skill => {
+    const escaped = skill.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const regex = new RegExp(`(?:\\b|\\s|/)${escaped}(?:\\b|\\s|/|,)`, 'i');
+    
+    if (regex.test(textNormalized)) {
+      matched.push(skill);
+    } else {
+      missing.push(skill);
+    }
+  });
+
+  const percent = Math.round((matched.length / jdSkills.length) * 100);
+  return { matched, percent, missing };
+}
+
+function calculateHistoricalAlignment(candidateSkills, roleId) {
+  const benchmarks = PREVIOUS_EMPLOYEES[roleId] || PREVIOUS_EMPLOYEES["frontend_architect"];
+  if (!benchmarks || benchmarks.length === 0) return 50;
+
+  const benchmarkSkillsUnionSet = new Set();
+  benchmarks.forEach(emp => {
+    emp.skills.forEach(s => benchmarkSkillsUnionSet.add(s));
+  });
+  const unionSkills = Array.from(benchmarkSkillsUnionSet);
+  if (unionSkills.length === 0) return 50;
+
+  const benchmarkVec = unionSkills.map(skill => {
+    let count = 0;
+    benchmarks.forEach(emp => {
+      if (emp.skills.includes(skill)) count++;
+    });
+    return count / benchmarks.length;
+  });
+
+  const candidateVec = unionSkills.map(skill => {
+    return candidateSkills.includes(skill) ? 1 : 0;
+  });
+
+  let dotProduct = 0;
+  let normA = 0;
+  let normB = 0;
+
+  for (let i = 0; i < unionSkills.length; i++) {
+    dotProduct += candidateVec[i] * benchmarkVec[i];
+    normA += candidateVec[i] * candidateVec[i];
+    normB += benchmarkVec[i] * benchmarkVec[i];
+  }
+
+  if (normA === 0 || normB === 0) return 30;
+
+  const similarity = dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+  return Math.round(similarity * 100);
+}
+
+function getEducationMatchScore(candEdu, reqEdu) {
+  const eduRank = { none: 0, high_school: 20, associate: 40, bachelor: 60, master: 85, phd: 100 };
+  const candRank = eduRank[candEdu.toLowerCase()] || 40;
+  const reqRank = eduRank[reqEdu.toLowerCase()] || 60;
+  
+  if (candRank >= reqRank) {
+    return 90 + Math.min(10, (candRank - reqRank));
+  } else {
+    return Math.max(30, 90 - (reqRank - candRank) * 1.5);
+  }
+}
+
+// --- Bind to window/exports ---
 const Data = {
   JOB_DESCRIPTIONS,
   PREVIOUS_EMPLOYEES,
@@ -434,7 +689,9 @@ const Data = {
   parseResumeSkills,
   calculateHistoricalAlignment,
   getEducationMatchScore,
-  analyzeReviewSentiment
+  analyzeReviewSentiment,
+  parseJDFromUrl,
+  generateDecisionSummary
 };
 
 if (typeof module !== 'undefined' && module.exports) {

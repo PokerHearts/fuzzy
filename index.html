@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FuzzyXAI - Explainable Fuzzy Multi-Criteria Decision Support System</title>
-  <!-- Tailwind CSS is NOT used, standard style.css covers custom theme -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -32,11 +31,6 @@
           Decision Nexus (Links)
         </a>
       </nav>
-      
-      <button class="theme-toggle-btn" onclick="toggleTheme()">
-        <svg id="theme-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"></path></svg>
-        <span id="theme-text">Light Mode</span>
-      </button>
     </aside>
 
     <!-- Main Workspace -->
@@ -50,55 +44,126 @@
         </div>
       </header>
 
+      <!-- COLLAPSIBLE DSS USER GUIDE & OPERATOR MANUAL -->
+      <div class="manual-accordion" id="user-guide-accordion">
+        <div class="manual-header" onclick="toggleUserGuide()">
+          <span style="display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            Fuzzy Decision Support System (DSS) User Guide & Operator Manual
+          </span>
+          <svg class="manual-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+        <div class="manual-content">
+          <p>
+            Welcome to the <strong>Fuzzy Multi-Criteria Decision Support System (MCDSS)</strong>. This system employs <strong>Mamdani Fuzzy Logic Inference</strong> to evaluate complex qualitative metrics (such as talent fit, soft skills, or resource parameters) under real-world, uncertain constraints.
+          </p>
+          <div class="manual-step-grid">
+            <div class="manual-step-card">
+              <h5>1. Define Requirements (Box A)</h5>
+              <p>Paste a job description text, load standard templates, or paste a Naukri/LinkedIn job link. The system extracts core skills and requirements in real-time.</p>
+            </div>
+            <div class="manual-step-card">
+              <h5>2. Bulk Screen Resumes (Box B)</h5>
+              <p>Drag and drop multiple text resumes (.txt) or click to upload. The system batch-parses all files, matching skills and calculating cosine similarities instantly.</p>
+            </div>
+            <div class="manual-step-card">
+              <h5>3. Analyze Leaderboard</h5>
+              <p>The sortable Leaderboard Table ranks candidates by their defuzzified compatibility score. Click any row to load detail charts, a resume viewer, and natural summaries.</p>
+            </div>
+            <div class="manual-step-card">
+              <h5>4. Priority Likert Matrix</h5>
+              <p>Switch to the <strong>Decision Nexus</strong> tab to evaluate links and places. Score Importance, Urgency, and Necessity on a 1-5 scale to dynamically calibrate rules.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- VIEW 1: RESUME SCREENER -->
       <div id="tab-screener" class="tab-content active">
         <div class="dashboard-grid">
           
           <!-- LEFT COLUMN: INPUTS & SETTINGS -->
-          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.25rem;">
             
-            <!-- Job Description Config Card -->
+            <!-- Box A: Target Specifications (JD Setup) -->
             <div class="glass-card">
-              <h3 class="card-title">1. Select Target Job Role</h3>
+              <h3 class="card-title">Box A: Target Job Specifications</h3>
+              
+              <!-- Paste URL Option -->
               <div class="select-wrapper">
-                <label for="jd-select">Job Role Profile</label>
-                <select id="jd-select" onchange="onJDChanged()">
-                  <!-- Dynamically populated from JS -->
-                </select>
+                <label for="jd-link-input">Paste LinkedIn or Naukri Job Profile URL</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="text" id="jd-link-input" placeholder="e.g. https://www.linkedin.com/jobs/view/senior-react-developer-role...">
+                  <button class="quick-btn" style="background: var(--accent-indigo); color: white; border-color: var(--accent-indigo); padding: 0.5rem 0.85rem;" onclick="scrapeJDLink()">
+                    Scrape JD Link
+                  </button>
+                </div>
               </div>
-              <div id="jd-skills-container" style="margin-top: 0.5rem;">
-                <label>Core Required Skills</label>
+
+              <!-- Paste/Type JD Area -->
+              <div class="select-wrapper">
+                <label for="jd-text-input">Or Paste Custom Job Description Text</label>
+                <textarea id="jd-text-input" rows="4" placeholder="Paste custom Job Description text here directly..." oninput="onCustomJDInput()"></textarea>
+              </div>
+
+              <!-- Preloaded quick templates -->
+              <div>
+                <label>Quick Load Standard Templates</label>
+                <div class="quick-btn-row">
+                  <button class="quick-btn" onclick="loadJDTemplate('frontend_architect')">Senior Frontend Architect</button>
+                  <button class="quick-btn" onclick="loadJDTemplate('data_scientist')">Lead Data Scientist</button>
+                  <button class="quick-btn" onclick="loadJDTemplate('product_manager')">Technical Product Manager</button>
+                </div>
+              </div>
+
+              <div id="jd-skills-container" style="margin-top: 1rem;">
+                <label>Extracted Target Required Skills</label>
                 <div id="jd-skills-badges" class="badge-list"></div>
               </div>
             </div>
 
-            <!-- Candidates Directory Card -->
+            <!-- Box B: Candidate Screening Table & Bulk Upload -->
             <div class="glass-card">
-              <h3 class="card-title">2. Choose Candidate Resume</h3>
-              <div id="candidates-list">
-                <!-- Dynamically populated from JS -->
-              </div>
+              <h3 class="card-title">Box B: Candidate Directory & Bulk screening</h3>
               
-              <!-- Resume Sandbox Area -->
-              <div style="margin-top: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
-                <label>Drag & Drop Resume (.txt) or Paste Text</label>
+              <!-- Multi-file Uploader -->
+              <div style="margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <label>Bulk Upload Resumes (.txt files)</label>
                 <div class="resume-uploader" id="resume-drop-zone" onclick="document.getElementById('file-uploader').click()">
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin: 0 auto 0.5rem auto; color: var(--accent-indigo); display: block;">
                     <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                   </svg>
-                  <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Click to upload or drag resume file here</span>
-                  <input type="file" id="file-uploader" accept=".txt" style="display: none;">
+                  <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Click to upload or drag-and-drop multiple resume text files here</span>
+                  <input type="file" id="file-uploader" accept=".txt" multiple style="display: none;">
                 </div>
-                
-                <textarea id="resume-text-input" rows="4" placeholder="Or paste full resume text here to parse and trigger fuzzy calculations on-the-fly..." oninput="onCustomResumeInput()"></textarea>
+              </div>
+
+              <!-- Bulk Leaderboard Table -->
+              <label>Bulk Screening Leaderboard</label>
+              <div class="leaderboard-container">
+                <table class="leaderboard-table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Candidate Name</th>
+                      <th>Match Score</th>
+                      <th>Skills Overlap</th>
+                      <th>Benchmark Align</th>
+                      <th>Recommendation</th>
+                    </tr>
+                  </thead>
+                  <tbody id="leaderboard-rows">
+                    <!-- Dynamically populated from JS -->
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <!-- Counterfactual Sandbox Sliders -->
+            <!-- What-If Counterfactual Sandbox Sliders -->
             <div class="glass-card">
               <h3 class="card-title">
-                3. What-If Counterfactual Sandbox
-                <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-secondary); margin-left: auto;">Adjust inputs to explore rules</span>
+                What-If Counterfactual Sandbox
+                <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-secondary); margin-left: auto;">Adjust inputs to override fuzzy rules</span>
               </h3>
               <div class="slider-group">
                 
@@ -149,46 +214,60 @@
           </div>
 
           <!-- RIGHT COLUMN: EXPLAINABLE AI OUTPUT & METRICS -->
-          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.25rem;">
             
             <!-- Result Summary Card -->
-            <div class="glass-card" style="position: relative; overflow: hidden; background: linear-gradient(135deg, var(--card-bg), rgba(99,102,241,0.05));">
+            <div class="glass-card" style="position: relative; overflow: hidden; background: linear-gradient(135deg, var(--card-bg), rgba(79,70,229,0.03)); border-color: rgba(79,70,229,0.15);">
               <h3 class="card-title">Decision Output</h3>
-              <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem;">
                 <div>
-                  <h2 id="final-decision-badge" class="score-badge high" style="font-size: 1.25rem; padding: 0.5rem 1.25rem;">Exceptional Fit</h2>
-                  <p id="decision-desc" style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;"></p>
+                  <h2 id="final-decision-badge" class="score-badge high" style="font-size: 1.15rem; padding: 0.4rem 1rem;">Exceptional Fit</h2>
                 </div>
                 <div style="text-align: right;">
-                  <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600;">Overall Match Score</span>
-                  <div id="final-score-val" style="font-size: 3rem; font-weight: 800; color: var(--text-primary); line-height: 1;">82.8%</div>
+                  <span style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600;">Overall Match Score</span>
+                  <div id="final-score-val" style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); line-height: 1;">82.8%</div>
                 </div>
+              </div>
+              
+              <!-- Human Resources Decision Summary Narrative -->
+              <label>Human Resources Plain-English Decision Summary</label>
+              <div class="decision-summary-box" id="decision-summary-content">
+                <!-- Dynamically populated from JS -->
+              </div>
+            </div>
+
+            <!-- Candidate Resume Viewer -->
+            <div class="glass-card">
+              <h3 class="card-title">Active Candidate Resume Viewer</h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Visual overlay showing matches highlighted in green.</p>
+              <div class="resume-viewer-box" id="resume-viewer-content">
+                <!-- Dynamically populated -->
               </div>
             </div>
 
             <!-- Dynamic Decision Weights Editor -->
             <div class="glass-card">
               <h3 class="card-title">Decision Criteria Importance Weights</h3>
-              <p style="font-size: 0.8rem; color: var(--text-secondary);">Recalculate candidates matches by weighting technical vs cultural constraints.</p>
+              <p style="font-size: 0.8rem; color: var(--text-secondary);">Recalculate matches dynamically by weighting technical vs cultural factors.</p>
               <div class="weight-grid">
                 <div class="weight-item">
-                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Skills Match</span>
+                  <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);">Skills Match</span>
                   <input type="range" id="weight-skills" min="0.1" max="1" step="0.1" value="1.0" oninput="onWeightsChanged()">
                 </div>
                 <div class="weight-item">
-                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Experience</span>
+                  <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);">Experience</span>
                   <input type="range" id="weight-experience" min="0.1" max="1" step="0.1" value="0.9" oninput="onWeightsChanged()">
                 </div>
                 <div class="weight-item">
-                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Benchmark</span>
+                  <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);">Benchmark</span>
                   <input type="range" id="weight-alignment" min="0.1" max="1" step="0.1" value="0.8" oninput="onWeightsChanged()">
                 </div>
                 <div class="weight-item">
-                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Cultural Fit</span>
+                  <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);">Cultural Fit</span>
                   <input type="range" id="weight-culture" min="0.1" max="1" step="0.1" value="0.7" oninput="onWeightsChanged()">
                 </div>
                 <div class="weight-item">
-                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Education</span>
+                  <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);">Education</span>
                   <input type="range" id="weight-education" min="0.1" max="1" step="0.1" value="0.5" oninput="onWeightsChanged()">
                 </div>
               </div>
@@ -216,20 +295,20 @@
             <div class="glass-card full-width">
               <h3 class="card-title">Membership Functions Activations</h3>
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
-                <div class="glass-card bg-slate-900/10">
-                  <h4 class="card-title" style="font-size: 0.9rem; border: none; margin-bottom: 0;">Skills Match MF</h4>
+                <div class="glass-card bg-slate-50">
+                  <h4 class="card-title" style="font-size: 0.85rem; border: none; margin-bottom: 0;">Skills Match MF</h4>
                   <div id="mf-skills"></div>
                 </div>
-                <div class="glass-card bg-slate-900/10">
-                  <h4 class="card-title" style="font-size: 0.9rem; border: none; margin-bottom: 0;">Experience MF</h4>
+                <div class="glass-card bg-slate-50">
+                  <h4 class="card-title" style="font-size: 0.85rem; border: none; margin-bottom: 0;">Experience MF</h4>
                   <div id="mf-experience"></div>
                 </div>
-                <div class="glass-card bg-slate-900/10">
-                  <h4 class="card-title" style="font-size: 0.9rem; border: none; margin-bottom: 0;">Alignment MF</h4>
+                <div class="glass-card bg-slate-50">
+                  <h4 class="card-title" style="font-size: 0.85rem; border: none; margin-bottom: 0;">Alignment MF</h4>
                   <div id="mf-alignment"></div>
                 </div>
-                <div class="glass-card bg-slate-900/10">
-                  <h4 class="card-title" style="font-size: 0.9rem; border: none; margin-bottom: 0;">Cultural Fit MF</h4>
+                <div class="glass-card bg-slate-50">
+                  <h4 class="card-title" style="font-size: 0.85rem; border: none; margin-bottom: 0;">Cultural Fit MF</h4>
                   <div id="mf-culture"></div>
                 </div>
               </div>
@@ -244,7 +323,7 @@
         <div class="dashboard-grid">
           
           <!-- LEFT COLUMN: EMPLOYEES & SCORES -->
-          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.25rem;">
             
             <div class="glass-card">
               <h3 class="card-title">1. Employee Directory</h3>
@@ -306,23 +385,23 @@
               <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Configure the weight of individual indicators in talent mapping.</p>
               <div class="weight-grid">
                 <div class="weight-item">
-                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Productivity</span>
+                  <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);">Productivity</span>
                   <input type="range" id="weight-perf-prod" min="0.1" max="1" step="0.1" value="1.0" oninput="onPerfWeightsChanged()">
                 </div>
                 <div class="weight-item">
-                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Quality</span>
+                  <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);">Quality</span>
                   <input type="range" id="weight-perf-qual" min="0.1" max="1" step="0.1" value="1.0" oninput="onPerfWeightsChanged()">
                 </div>
                 <div class="weight-item">
-                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Collaboration</span>
+                  <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);">Collaboration</span>
                   <input type="range" id="weight-perf-coll" min="0.1" max="1" step="0.1" value="0.8" oninput="onPerfWeightsChanged()">
                 </div>
                 <div class="weight-item">
-                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Adaptability</span>
+                  <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);">Adaptability</span>
                   <input type="range" id="weight-perf-adap" min="0.1" max="1" step="0.1" value="0.7" oninput="onPerfWeightsChanged()">
                 </div>
                 <div class="weight-item">
-                  <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Autonomy</span>
+                  <span style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);">Autonomy</span>
                   <input type="range" id="weight-perf-auto" min="0.1" max="1" step="0.1" value="0.6" oninput="onPerfWeightsChanged()">
                 </div>
               </div>
@@ -331,18 +410,18 @@
           </div>
 
           <!-- RIGHT COLUMN: PERFORMANCE XAI -->
-          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.25rem;">
             
-            <div class="glass-card" style="position: relative; overflow: hidden; background: linear-gradient(135deg, var(--card-bg), rgba(16,185,129,0.05));">
+            <div class="glass-card" style="position: relative; overflow: hidden; background: linear-gradient(135deg, var(--card-bg), rgba(16,185,129,0.03)); border-color: rgba(16,185,129,0.15);">
               <h3 class="card-title">Performance Summary</h3>
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
                 <div>
-                  <h2 id="perf-decision-badge" class="score-badge high" style="font-size: 1.25rem; padding: 0.5rem 1.25rem;">Star Performer</h2>
+                  <h2 id="perf-decision-badge" class="score-badge high" style="font-size: 1.15rem; padding: 0.4rem 1rem;">Star Performer</h2>
                   <p id="perf-decision-desc" style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Promote & Reward</p>
                 </div>
                 <div style="text-align: right;">
                   <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600;">Overall Rating</span>
-                  <div id="perf-score-val" style="font-size: 3rem; font-weight: 800; color: var(--text-primary); line-height: 1;">89.0%</div>
+                  <div id="perf-score-val" style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); line-height: 1;">89.0%</div>
                 </div>
               </div>
             </div>
@@ -366,12 +445,16 @@
             </div>
 
           </div>
+
+        </div>
+      </div>
+
       <!-- VIEW 3: DECISION NEXUS (LINKS) -->
       <div id="tab-nexus" class="tab-content">
         <div class="dashboard-grid">
           
           <!-- LEFT COLUMN: INPUTS & CRITERIA -->
-          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.25rem;">
             
             <!-- Box A: Target Specifications -->
             <div class="glass-card">
@@ -403,10 +486,10 @@
               </div>
 
               <!-- Add Custom Link Form -->
-              <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+              <div style="border-top: 1px solid var(--card-border); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
                 <label>Add Custom Resource Link</label>
-                <input type="text" id="nexus-new-name" placeholder="Resource Name (e.g. My Favorite Pizza)">
-                <input type="text" id="nexus-new-url" placeholder="Resource URL Link (e.g. https://mypizza.com)">
+                <input type="text" id="nexus-new-name" placeholder="Resource Name (e.g. Toscano Italian Bistro)">
+                <input type="text" id="nexus-new-url" placeholder="Resource URL Link (e.g. https://toscano-bistro.example.com)">
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                   <div>
@@ -426,7 +509,7 @@
                   </div>
                 </div>
                 
-                <button class="theme-toggle-btn" style="margin-top: 0.5rem; background: var(--accent-indigo); color: white; border-color: var(--accent-indigo);" onclick="addNewNexusLink()">
+                <button class="quick-btn" style="margin-top: 0.5rem; background: var(--accent-indigo); color: white; border-color: var(--accent-indigo);" onclick="addNewNexusLink()">
                   Add to Resource Board
                 </button>
               </div>
@@ -559,19 +642,19 @@
           </div>
 
           <!-- RIGHT COLUMN: DECISION ANALYSIS & Sentiment Highlights -->
-          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="flex flex-col gap-6" style="display: flex; flex-direction: column; gap: 1.25rem;">
             
             <!-- Result Card -->
-            <div class="glass-card" style="position: relative; overflow: hidden; background: linear-gradient(135deg, var(--card-bg), rgba(139,92,246,0.05));">
+            <div class="glass-card" style="position: relative; overflow: hidden; background: linear-gradient(135deg, var(--card-bg), rgba(139,92,246,0.03)); border-color: rgba(139,92,246,0.15);">
               <h3 class="card-title">Resource Compatibility Decision</h3>
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
                 <div>
-                  <h2 id="nexus-decision-badge" class="score-badge high" style="font-size: 1.25rem; padding: 0.5rem 1.25rem;">Highly Compatible</h2>
+                  <h2 id="nexus-decision-badge" class="score-badge high" style="font-size: 1.15rem; padding: 0.4rem 1rem;">Highly Compatible</h2>
                   <p id="nexus-decision-desc" style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Matches target criteria exceptional.</p>
                 </div>
                 <div style="text-align: right;">
                   <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600;">Match Score</span>
-                  <div id="nexus-score-val" style="font-size: 3rem; font-weight: 800; color: var(--text-primary); line-height: 1;">88.5%</div>
+                  <div id="nexus-score-val" style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); line-height: 1;">88.5%</div>
                 </div>
               </div>
             </div>
@@ -586,9 +669,9 @@
                 <textarea id="nexus-reviews-text" rows="4" placeholder="Reviews content loaded here..." oninput="onCustomReviewsInput()"></textarea>
               </div>
               
-              <div class="glass-card bg-slate-950/30 border-slate-900" style="padding: 1rem;">
+              <div class="glass-card" style="padding: 1rem; background: var(--bg-primary);">
                 <label style="font-size: 0.75rem;">Parsed Highlight View</label>
-                <div id="nexus-sentiment-markup" style="font-size: 0.9rem; line-height: 1.6; color: var(--text-primary); min-height: 50px;">
+                <div id="nexus-sentiment-markup" style="font-size: 0.85rem; line-height: 1.6; color: var(--text-primary); min-height: 50px; white-space: pre-wrap;">
                   <!-- Dynamically populated with spans -->
                 </div>
               </div>
